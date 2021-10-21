@@ -14,6 +14,7 @@ def cls():
     npyscreen.blank_terminal()
 
 
+
 class UpdateArticlesDB(npyscreen.Popup):
 
     def create(self):
@@ -72,7 +73,7 @@ class SearchArticles(npyscreen.ActionForm, npyscreen.FormBaseNew):
         npyscreen.notify_confirm('TERM TO SEARCH: {0}'.format(self.search_term.value))
         self.parentApp.switchForm('MAIN')
 
-class ListArticles(npyscreen.Form):
+class ListArticles( npyscreen.Form):
 
     OK_BUTTON_TEXT = 'ACEPTAR'
     
@@ -85,8 +86,10 @@ class ListArticles(npyscreen.Form):
         self.engine = pyttsx3.init()
         self.newVoiceRate = 145
         
+        
     def while_waiting(self):
-        if(len(self.options_selected.value)>0 and self.parentApp.read):
+    
+        if(len(self.options_selected.value)!=0 and self.parentApp.read):
             self.engine.setProperty('rate',self.parentApp.voice_rate)
             self.engine.setProperty('volume',self.parentApp.systemVolume)  
             self.engine.say(self.news_list[self.options_selected.value[0]])
@@ -97,16 +100,23 @@ class ListArticles(npyscreen.Form):
             else:
                 pass
 
-    def afterEditing(self):
-        publish = npyscreen.notify_ok_cancel('AFTER EDIT ON LIST OF ARTICLES : \n {0}'.format(self.news_list[self.options_selected.value[0]]))
-        npyscreen.notify_wait('publish {0}'.format(publish))
-        npyscreen.blank_terminal()
 
-        publ = self.parentApp.getForm("PUBLISHARTICLE")
-        publ.title.value = self.news_list[self.options_selected.value[0]]
-        publ.author.value = 'some great author'
-        publ.tags.value = 'teast, asdflasdf, tas , atatsda'
-        self.parentApp.switchForm("PUBLISHARTICLE")
+
+    def afterEditing(self):
+        publish = npyscreen.notify_ok_cancel(
+            '\n {0}'.format(self.news_list[self.options_selected.value[0]]),
+            title='DID YOU WANT TO PUBLISH THIS ARTICLE?'
+            )
+        cls()
+
+        if(publish==True):
+            publ = self.parentApp.getForm("PUBLISHARTICLE")
+            publ.title.value = self.news_list[self.options_selected.value[0]]
+            publ.author.value = 'some great author'
+            publ.tags.value = 'teast, asdflasdf, tas , atatsda'
+            self.parentApp.switchForm("PUBLISHARTICLE")
+        else:
+            self.parentApp.switchForm('LISTARTICLES')
         
 
 

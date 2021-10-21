@@ -40,7 +40,7 @@ class App(npyscreen.NPSAppManaged):
         self.voice_rate = 0
 
         
-class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
+class MainForm(npyscreen.FormBaseNewWithMenus):
     def create(self):
         self.name='RSS FEEDER'
         self.add(npyscreen.TitleText, name = "Text:", value= "Hellow World!" )
@@ -53,7 +53,8 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
         #  ARTICLES
         self.articles_submenu = self.menu.addNewSubmenu('ARTICLES', shortcut='a')
         self.articles_submenu.addItem('LIST ARTICLES', self.listarticles, shortcut='l')
-        self.articles_submenu.addItem('PUBLISH ARTICLES', self.publishArticle, shortcut='p')
+        self.articles_submenu.addItem('PUBLISH  ONE ARTICLE', self.publishArticle, shortcut='p')
+        self.articles_submenu.addItem('PUBLISH  MANY ARTICLES', self.publishArticle, shortcut='p')
         self.articles_submenu.addItem('SEARCH ARTICLES', self.searchArticles, shortcut='s')
         #  CONFIG
         self.config_menu = self.menu.addNewSubmenu('CONFIG', shortcut='c')
@@ -65,34 +66,40 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
 
         
     def configSound(self):
-        
         self.parentApp.switchForm('CONFIGSOUND')
+        cls()
         
     def searchArticles(self):
-        
         self.parentApp.switchForm('SEARCHARTICLES')
+        cls()
 
     def updatearticlesdb(self):
-        
         self.parentApp.switchForm('UPDATEARTICLESDB')
+        cls()
+        
 
 
     def publishArticle(self):
-
         self.parentApp.switchForm('PUBLISHARTICLE')
+        cls()
+
 
     def listarticles(self):
         self.parentApp.switchForm('LISTARTICLES')
+        cls()
 
 
     def addform(self):
         self.parentApp.switchForm('ADDFEED')
+        cls()
 
     def listform(self):
         self.parentApp.switchForm('LISTFEED')
+        cls()
 
     def exitAplication(self):
         self.parentApp.switchForm(None)
+        cls()
 
 
 

@@ -14,14 +14,24 @@ def cls():
 
 
 
-class ListRssFeed(npyscreen.Popup):
+class ListRssFeed(npyscreen.FormBaseNew):
     def create(self):
         self.name='LIST OF RSS FEEDS]'
         self.rss_list = [i.name for i in get_all_rss_feeds()]
         self.title = self.add(npyscreen.TitleText, name = "TOTAL:", value= "{0}".format(len(get_all_rss_feeds())) , editable = False)
         self.option_selected = self.add(npyscreen.TitleSelectOne, name='RSS FEEDS LIST', values = self.rss_list)
+        
 
-    def updateRssFeeds(self):
+        
+        self.option_selected.when_cursor_moved = curses.beep
+        
+
+    def shit_moved(self):
+        npyscreen.notify_ok_cancel('SHIT MOVED RIGHT THERE!')
+
+
+    def pre_edit_loop(self):
+        cls()
         self.rss_list = [i.name for i in get_all_rss_feeds()]
 
     def afterEditing(self):
