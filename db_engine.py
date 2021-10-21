@@ -33,4 +33,5 @@ def initialize_db():
     db.create_tables([Base_Model, RSS_Feed,News], safe = True)
     db.close()
 
-
+if __name__ == '__main__':
+    initialize_db()
