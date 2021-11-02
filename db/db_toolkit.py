@@ -33,7 +33,7 @@ def get_list_articles():
 
 def add_new_rss_feed(feed):
 	if(check_rss_active_status(feed['url'])):
-		db.connect()
+		#  db.connect()
 		try:
 			RSS_Feed.create(
 				url = feed['url'],
@@ -44,6 +44,16 @@ def add_new_rss_feed(feed):
 			).save()
 		except IntegrityError:
 			print('RSS URL Already saved.')
-			db.close()
+			#  db.close()
 	else:
 		return('URL IS OUT OF LINE')
+
+
+
+def filter_rss_title(title):
+    rss = RSS_Feed.select().where(
+            RSS_Feed.name.contains(str(title))
+            )
+    return(rss)
+
+

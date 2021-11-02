@@ -22,23 +22,14 @@ def cls():
 
 
 
-class RSS_FEEDER(npyscreen.NPSAppManaged):
-
-    def onStart(self):
-        initialize_db()
-        self.registerForm('MAIN', MainForm(name='RSS FEEDER'))
-        # RSS FEED
-        self.registerForm('ADD_RSS_FEED', ADD_RSS(name='ADD RSS FEED'))
-        self.registerForm('LIST_RSS_FEED', LIST_RSS(name='LIST RSS FEED'))
-
-
-
 
 class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
     def create(self):
         self.screen_size = self.curses_pad.getmaxyx() #(height,width)
         self.half_way = self.get_half_way()
-        
+
+
+
         self.add(
             npyscreen.FixedText,
             value='Simulate social network activity with RSS FEEDER.',
@@ -64,6 +55,7 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
         self.rss_submenu = self.menu.addNewSubmenu('RSS', shortcut='r')
         self.rss_submenu.addItem('ADD RSS FEED', self.add_rss, shortcut='a')
         self.rss_submenu.addItem('LIST RSS FEED', self.list_rss, shortcut='s')
+        self.rss_submenu.addItem('SEARCH RSS FEED', self.search_rss, shortcut='f')
         # ARTICLES
         self.articles_submenu = self.menu.addNewSubmenu('ARTICLES', shortcut='a')
         # TWITTER
@@ -82,9 +74,29 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
         self.parentApp.switchForm('ADD_RSS_FEED')
         cls()
 
+
+    def search_rss(self):
+        pass
+
     def list_rss(self):
         self.parentApp.switchForm('LIST_RSS_FEED')
         cls()
+
+
+
+class RSS_FEEDER(npyscreen.NPSAppManaged):
+
+        
+    keypress_timeout_default = 50
+
+    def onStart(self):
+        initialize_db()
+               
+
+        self.registerForm('MAIN', MainForm(name='RSS FEEDER'))
+        # RSS FEED
+        self.registerForm('ADD_RSS_FEED', ADD_RSS(name='ADD RSS FEED'))
+        self.registerForm('LIST_RSS_FEED', LIST_RSS(name='LIST RSS FEED'))
 
 
 if __name__ == "__main__":
