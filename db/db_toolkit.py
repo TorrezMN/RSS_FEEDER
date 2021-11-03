@@ -50,10 +50,28 @@ def add_new_rss_feed(feed):
 
 
 
+
+def add_news(news):
+	try:
+		News.create(
+			feed = news['feed'],
+			author = news['author'],
+			published_date = news['date'],
+			title = news['title'],
+			link_url = news['url'],
+			article_tags = news['tags']
+			).save()
+	except IntegrityError:
+		print('NEWS WAS ALREADY SAVED')
+
+
+
+
 def filter_rss_title(title):
     rss = RSS_Feed.select().where(
             RSS_Feed.name.contains(str(title))
             )
     return(rss)
+
 
 

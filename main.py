@@ -11,6 +11,14 @@ from rss.rss_forms import ADD_RSS
 from rss.rss_forms import LIST_RSS
 
 
+
+from articles.articles_forms import UPDATE_NEWS
+from articles.articles_forms import LIST_NEWS
+
+
+
+
+
 # DB
 from db.db_engine import db
 from db.db_engine import initialize_db
@@ -58,6 +66,8 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
         self.rss_submenu.addItem('SEARCH RSS FEED', self.search_rss, shortcut='f')
         # ARTICLES
         self.articles_submenu = self.menu.addNewSubmenu('ARTICLES', shortcut='a')
+        self.articles_submenu.addItem('LIST ARTICLES', self.list_articles, shortcut='s')
+        self.articles_submenu.addItem('UPDATE ARTICLES', self.update_articles, shortcut='r')
         # TWITTER
         self.twitter_submenu = self.menu.addNewSubmenu('TWITTER', shortcut='t')
         # CONFIG
@@ -82,7 +92,13 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
         self.parentApp.switchForm('LIST_RSS_FEED')
         cls()
 
-
+    def list_articles(self):
+        self.parentApp.switchForm('LIST_NEWS')
+        cls()
+        
+    def update_articles(self):
+        self.parentApp.switchForm('UPDATE_NEWS')
+        cls()
 
 class RSS_FEEDER(npyscreen.NPSAppManaged):
 
@@ -97,6 +113,12 @@ class RSS_FEEDER(npyscreen.NPSAppManaged):
         # RSS FEED
         self.registerForm('ADD_RSS_FEED', ADD_RSS(name='ADD RSS FEED'))
         self.registerForm('LIST_RSS_FEED', LIST_RSS(name='LIST RSS FEED'))
+
+        # ARTICLES
+        self.registerForm('UPDATE_NEWS', UPDATE_NEWS(name='UPDATE NEWS'))
+        self.registerForm('LIST_NEWS', LIST_NEWS(name='LIST NEWS'))
+
+
 
 
 if __name__ == "__main__":
