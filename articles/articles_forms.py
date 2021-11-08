@@ -6,10 +6,9 @@ from db.db_toolkit import add_news
 from db.db_engine import RSS_Feed
 from db.db_engine import News
 from utils.utilities import get_news_from_rss
-
+from utils.utilities import get_news_stats
  
 class UPDATE_NEWS(npyscreen.FormBaseNew):
-
 
     def create(self):
         self.keypress_timeout = 10
@@ -39,9 +38,6 @@ class UPDATE_NEWS(npyscreen.FormBaseNew):
                 add_news(i)
 
 
-
-
-
             self.rss_list.value +=1
             self.DISPLAY()
         except IndexError:
@@ -49,16 +45,13 @@ class UPDATE_NEWS(npyscreen.FormBaseNew):
             self.parentApp.switchForm('MAIN')
             self.DISPLAY()
 
-
-
-
-
 class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
 
     MOVE_LINE_ON_RESIZE = True
 
     def create(self):
         #self.keypress_timeout = 10
+        self.name = "LIST NEWS | TOTAL: {0}".format(len(get_list_articles()))
         self.screen_size = self.curses_pad.getmaxyx() #(height,width)
         self.rss_list = self.add(
                 npyscreen.MultiLine,
@@ -94,6 +87,7 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
             editable=False,
             hidden=True
             )
+        
 
         self.nextrely += 1
 
@@ -102,8 +96,8 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
             name='DETAILS',
             when_pressed_function=self.article_detail, 
             hidden=True,
-            relx=int(self.screen_size[1]*0.2),
-            rely = int(self.screen_size[0]*0.7)
+            relx=int(self.screen_size[1]*0.1),
+            rely = int(self.screen_size[0]*0.9)
             )
 
         self.go_back_btn = self.add(
@@ -111,8 +105,8 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
             name='GO BACK',
             when_pressed_function=self.go_back, 
             hidden=True,
-            relx=int(self.screen_size[1]*0.1),
-            rely = int(self.screen_size[0]*0.7)
+            relx=int(self.screen_size[1]*0.2),
+            rely = int(self.screen_size[0]*0.9)
             )
 
         self.rss_list.when_check_cursor_moved = curses.beep
@@ -120,11 +114,13 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
         
 
     def article_detail(self):
-        npyscreen.notify_ok_cancel('ARTICLE DETAIL! : {0}'.format(dir(self.article_detail_btn)))
+        next_form = self.parentApp.getForm('DETAIL_NEWS')
+        next_form.article_title.value = self.article_name.value
+        self.parentApp.switchForm('DETAIL_NEWS')
+
 
     def go_back(self):
         self.parentApp.switchForm('MAIN')
-
 
     
     def new_value(self):
@@ -142,6 +138,7 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
 
 
 
+
             self.article_detail_btn.hidden = False
             self.go_back_btn.hidden = False
 
@@ -149,6 +146,22 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
         except:
             
             self.DISPLAY()
-    
-    
-  
+
+
+
+class DETAIL_NEWS(npyscreen.FormBaseNew):
+    def create(self):
+        self.article_title = self.add(npyscreen.TitleText, name='Article')
+        self.article_author = self.add(npyscreen.TitleText, name='Author')
+        self.article_publisher = self.add(npyscreen.TitleText, name='Publisher')
+        self.article_url = self.add(npyscreen.TitleText, hidden=True)
+
+
+    def pre_edit_loop(self):
+        curses.beep
+        art =  News.select().where(News.title == self.article_title.value)
+        self.article_title.value = art[0].title
+        self.article_author.value = art[0].author
+        self.article_publisher.value = RSS_Feed.select().where(RSS_Feed.id ==art[0].feed)[0].name
+        self.article_url.value = art[0].link_url
+        npyscreen.notify_ok_cancel('COMMON WORDS: {0}'.format(get_news_stats(art[0].link_url)))

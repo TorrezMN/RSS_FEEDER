@@ -14,6 +14,7 @@ from rss.rss_forms import LIST_RSS
 
 from articles.articles_forms import UPDATE_NEWS
 from articles.articles_forms import LIST_NEWS
+from articles.articles_forms import DETAIL_NEWS
 
 
 
@@ -116,7 +117,8 @@ class RSS_FEEDER(npyscreen.NPSAppManaged):
 
         # ARTICLES
         self.registerForm('UPDATE_NEWS', UPDATE_NEWS(name='UPDATE NEWS'))
-        self.registerForm('LIST_NEWS', LIST_NEWS(name='LIST NEWS'))
+        self.registerForm('LIST_NEWS', LIST_NEWS())
+        self.registerForm('DETAIL_NEWS', DETAIL_NEWS(name='DETAIL NEWS'))
 
 
 

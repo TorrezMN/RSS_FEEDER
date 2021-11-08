@@ -42,16 +42,25 @@ f = 'https://dev.to/feed/'
 
 
 
-def get_news_stats(text):
-    tl = text['text'].split()
+def get_news_stats(url):
+    req = requests.get(url)
+    soup = BeautifulSoup(req.text, 'lxml')
+
+    tl = soup.get_text().replace('\n','').replace('\n\n', '').replace('\n', '').replace('      ', '').replace('    ','').split(' ')
+
+
     curated = [i for i in tl if i.lower() not in stop_words]
+
+
     stats = Counter(curated)
+    
+    
     tags = []
     for k,v in enumerate(stats):
         if(k>100 and len(v)>6):
             tags.append([k,v])
     return({
-        'url':text['url'],
+        'url':url,
         'tags':sorted(tags, key=itemgetter(0), reverse=True),
         })
 
@@ -75,3 +84,7 @@ def get_news_from_rss(feed):
             }
         )
     return(news)
+
+
+if __name__ == '__main__':
+    print(get_news_stats(URL))
