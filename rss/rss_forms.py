@@ -31,21 +31,33 @@ class LIST_RSS(npyscreen.FormBaseNew):
                 value = 0
                 )
         self.rss_list.when_check_cursor_moved = curses.beep
-        
+        self.rss_detail_btn = self.add(
+                npyscreen.ButtonPress,
+                when_pressed_function = self.detail_pressed,
+                name='RSS DETAIL',
+                relx=int(self.screen_size[1]*0.7),
+                rely=int(self.screen_size[0]*0.9)
+                )        
+        self.rss_go_back_btn = self.add(
+                npyscreen.ButtonPress,
+                when_pressed_function = self.go_back_pressed,
+                name='GO BACK',
+                relx=int(self.screen_size[1]*0.8),
+                rely=int(self.screen_size[0]*0.9),
+                )
+
+    def go_back_pressed(self):
+        self.parentApp.switchForm('MAIN')
+
+    def detail_pressed(self):
+        selected_index = self.rss_list.value
+        npyscreen.notify_ok_cancel('SELECCIONADO : {0}'.format(self.rss_list.values[selected_index]))
 
     def pre_edit_loop(self):
         curses.beep
         self.rss_list.values = [i.name for i in get_all_rss_feeds()]
         self.DISPLAY()
 
-#  def while_waiting(self):
-        #  npyscreen.notify_wait('AWAIT!')
-        #  self.rss_list.values.append('test')
-        #  self.DISPLAY()
-
-
-    def afterEditing(self):
-        npyscreen.notify_wait('VALOR: {0}'.format(self.selected_feed, title='RSS - DETAIL'))
 
 
 

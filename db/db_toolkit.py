@@ -74,4 +74,8 @@ def filter_rss_title(title):
     return(rss)
 
 
-
+def filter_news_title(title):
+    news = News.select().where(
+            News.title.contains(str(title))
+            )
+    return(news)

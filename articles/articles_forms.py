@@ -1,13 +1,28 @@
 import curses
 import npyscreen
+import itertools
 from db.db_toolkit import get_all_rss_feeds
 from db.db_toolkit import get_list_articles
 from db.db_toolkit import add_news
+from db.db_toolkit import filter_news_title
+
 from db.db_engine import RSS_Feed
 from db.db_engine import News
 from utils.utilities import get_news_from_rss
 from utils.utilities import get_news_stats
  
+
+
+
+def cls():
+    npyscreen.blank_terminal()
+
+
+
+
+
+
+
 class UPDATE_NEWS(npyscreen.FormBaseNew):
 
     def create(self):
@@ -29,10 +44,8 @@ class UPDATE_NEWS(npyscreen.FormBaseNew):
     def while_waiting(self):
         #npyscreen.notify_ok_cancel('AWAIT! {0}'.format(get_news_from_rss(get_all_rss_feeds()[0])))
         try:
+            cls()
             npyscreen.notify_wait('RSS URL :  {0}'.format(self.rss_list.values[self.rss_list.value]), title='UPDATING')
-            #npyscreen.notify_ok_cancel('FEDD {0}'.format(
-            #    RSS_Feed.select().where(RSS_Feed.url ==self.rss_list.values[self.rss_list.value])
-            #    ))
           
             for i in get_news_from_rss(RSS_Feed.select().where(RSS_Feed.url ==self.rss_list.values[self.rss_list.value])):
                 add_news(i)
@@ -105,7 +118,7 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
             name='GO BACK',
             when_pressed_function=self.go_back, 
             hidden=True,
-            relx=int(self.screen_size[1]*0.2),
+            relx=int(self.screen_size[1]*0.3),
             rely = int(self.screen_size[0]*0.9)
             )
 
@@ -151,11 +164,59 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
 
 class DETAIL_NEWS(npyscreen.FormBaseNew):
     def create(self):
+        self.screen_size = self.curses_pad.getmaxyx() #(height,width)
         self.article_title = self.add(npyscreen.TitleText, name='Article')
         self.article_author = self.add(npyscreen.TitleText, name='Author')
         self.article_publisher = self.add(npyscreen.TitleText, name='Publisher')
         self.article_url = self.add(npyscreen.TitleText, hidden=True)
+        self.article_tags = self.add(
+                npyscreen.TitleMultiSelect,
+                name='SUGESTED ARTICLE TAGS',
+                #values = [],
+                max_height= int(self.screen_size[0]*0.5),
+                value = 0,
+                color='GOOD'
+                )
 
+
+        self.article_publish_btn = self.add(
+            npyscreen.ButtonPress,
+            name='PUBLISH',
+            when_pressed_function=self.publish_article, 
+            hidden=True,
+            relx=int(self.screen_size[1]*0.1),
+            rely = int(self.screen_size[0]*0.9)
+            )
+        self.article_go_back_btn = self.add(
+            npyscreen.ButtonPress,
+            name='GO BACK',
+            when_pressed_function=self.go_back, 
+            hidden=True,
+            relx=int(self.screen_size[1]*0.3),
+            rely = int(self.screen_size[0]*0.9)
+            )
+
+    def publish_article(self):
+        cls()
+        curses.beep
+        selected = self.article_tags.get_selected_objects()
+        tags = []
+        for i in selected:
+            if '#' in i:
+                for j in i.split('#'):
+                    if(len(j)>1):
+                        tags.append(str(j))
+            else:
+                tags.append(str(i))
+
+        cls()
+        npyscreen.notify_ok_cancel('ARTICLE: {0} \n\nSUGGESTED TAGS: {1}'.format(self.article_title.value, tags))
+        cls()
+    
+
+
+    def go_back(self):
+        self.parentApp.switchForm('LIST_NEWS')
 
     def pre_edit_loop(self):
         curses.beep
@@ -164,4 +225,35 @@ class DETAIL_NEWS(npyscreen.FormBaseNew):
         self.article_author.value = art[0].author
         self.article_publisher.value = RSS_Feed.select().where(RSS_Feed.id ==art[0].feed)[0].name
         self.article_url.value = art[0].link_url
-        npyscreen.notify_ok_cancel('COMMON WORDS: {0}'.format(get_news_stats(art[0].link_url)))
+        self.article_tags.values = [tag[1] for tag in get_news_stats(art[0].link_url)['tags']]
+        
+        self.article_publish_btn.hidden=False
+        self.article_go_back_btn.hidden=False
+
+
+
+class SEARCH_NEWS(npyscreen.FormBaseNew):
+    
+    def create(self):
+        self.screen_size = self.curses_pad.getmaxyx() #(height,width)
+        self.article_title = self.add(
+                npyscreen.TitleText, 
+                name='SEARCH',
+                value_changed_callback = self.the_value_has_changed,
+        )
+
+        self.new_val = self.add(npyscreen.TitleText, name='NEW VALUE')
+
+
+
+    def the_value_has_changed(self,a):
+        cls()
+        if(not isinstance(self.article_title.value ,None)):
+            npyscreen.notify_ok_cancel('CURRENT VALUE {0}{1}'.format(self.article_title.value,a))
+        self.DISPLAY()
+
+    def pre_edit_loop(self):
+       npyscreen.notify_ok_cancel('{0}\n\n\n\n{1}'.format(
+           dir(self.article_title),
+           self.article_title.value_changed_callback
+           ))

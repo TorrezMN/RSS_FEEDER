@@ -15,7 +15,7 @@ from rss.rss_forms import LIST_RSS
 from articles.articles_forms import UPDATE_NEWS
 from articles.articles_forms import LIST_NEWS
 from articles.articles_forms import DETAIL_NEWS
-
+from articles.articles_forms import SEARCH_NEWS
 
 
 
@@ -64,18 +64,25 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
         self.rss_submenu = self.menu.addNewSubmenu('RSS', shortcut='r')
         self.rss_submenu.addItem('ADD RSS FEED', self.add_rss, shortcut='a')
         self.rss_submenu.addItem('LIST RSS FEED', self.list_rss, shortcut='s')
-        self.rss_submenu.addItem('SEARCH RSS FEED', self.search_rss, shortcut='f')
         # ARTICLES
         self.articles_submenu = self.menu.addNewSubmenu('ARTICLES', shortcut='a')
         self.articles_submenu.addItem('LIST ARTICLES', self.list_articles, shortcut='s')
         self.articles_submenu.addItem('UPDATE ARTICLES', self.update_articles, shortcut='r')
+        self.articles_submenu.addItem('SEARCH NEWS', self.search_articles, shortcut='f')
         # TWITTER
         self.twitter_submenu = self.menu.addNewSubmenu('TWITTER', shortcut='t')
         # CONFIG
         self.config_submenu = self.menu.addNewSubmenu('CONFIG', shortcut='c')
         
         # MAIN MENU ITEMS
-        self.menu.addItem('EXIT APP', self.exitAplication, shortcut='s')
+        self.menu.addItem('EXIT APP', self.exitAplication, shortcut='e')
+
+
+    def search_articles(self):
+        self.parentApp.switchForm('SEARCH_NEWS')
+        cls()
+
+
 
     def exitAplication(self):
         self.parentApp.switchForm(None)
@@ -86,8 +93,6 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
         cls()
 
 
-    def search_rss(self):
-        pass
 
     def list_rss(self):
         self.parentApp.switchForm('LIST_RSS_FEED')
@@ -119,6 +124,7 @@ class RSS_FEEDER(npyscreen.NPSAppManaged):
         self.registerForm('UPDATE_NEWS', UPDATE_NEWS(name='UPDATE NEWS'))
         self.registerForm('LIST_NEWS', LIST_NEWS())
         self.registerForm('DETAIL_NEWS', DETAIL_NEWS(name='DETAIL NEWS'))
+        self.registerForm('SEARCH_NEWS', SEARCH_NEWS(name='SEARCH NEWS'))
 
 
 
