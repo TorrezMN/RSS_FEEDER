@@ -1,15 +1,14 @@
 import curses
-import npyscreen
 import itertools
-from db.db_toolkit import get_all_rss_feeds
-from db.db_toolkit import get_list_articles
-from db.db_toolkit import add_news
-from db.db_toolkit import filter_news_title
 
-from db.db_engine import RSS_Feed
-from db.db_engine import News
-from utils.utilities import get_news_from_rss
-from utils.utilities import get_news_stats
+import npyscreen
+
+from db.db_engine import News, RSS_Feed
+from db.db_toolkit import (add_news, filter_news_title, get_all_rss_feeds,
+                           get_list_articles)
+from utils.utilities import get_news_from_rss, get_news_stats
+
+from twitter.twitter_engine import TwitterEngine
 
 
 def cls():
@@ -142,10 +141,15 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
 class DETAIL_NEWS(npyscreen.FormBaseNew):
     def create(self):
         self.screen_size = self.curses_pad.getmaxyx()  #(height,width)
-        self.article_title = self.add(npyscreen.TitleText, name='Article')
-        self.article_author = self.add(npyscreen.TitleText, name='Author')
+        self.article_title = self.add(npyscreen.TitleText,
+                                      name='Article',
+                                      editable=False)
+        self.article_author = self.add(npyscreen.TitleText,
+                                       name='Author',
+                                       editable=False)
         self.article_publisher = self.add(npyscreen.TitleText,
-                                          name='Publisher')
+                                          name='Publisher',
+                                          editable=False)
         self.article_url = self.add(npyscreen.TitleText, hidden=True)
         self.article_tags = self.add(
             npyscreen.TitleMultiSelect,
@@ -182,11 +186,20 @@ class DETAIL_NEWS(npyscreen.FormBaseNew):
                         tags.append(str(j))
             else:
                 tags.append(str(i))
+        # Removing duplicated tags.
+        tags = list(set(tags))
 
         cls()
-        npyscreen.notify_ok_cancel(
+        to_publish = npyscreen.notify_ok_cancel(
             'ARTICLE: {0} \n\nSUGGESTED TAGS: {1}\n\n URL:{2}'.format(
                 self.article_title.value, tags, self.article_url.value))
+
+        if (to_publish):
+            te = TwitterEngine()
+            npyscreen.notify_wait('TWITTER TIMELINE  : \n\n {0}'.format(
+                te.get_twitter_time_line()))
+        else:
+            self.parentApp.switchForm('MAIN')
         cls()
 
     def go_back(self):
