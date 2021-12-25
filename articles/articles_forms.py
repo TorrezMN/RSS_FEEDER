@@ -5,7 +5,7 @@ import npyscreen
 
 from db.db_engine import News, RSS_Feed
 from db.db_toolkit import (add_news, filter_news_title, get_all_rss_feeds,
-                           get_list_articles)
+                           get_list_articles, delete_news)
 from utils.utilities import get_news_from_rss, get_news_stats
 
 from twitter.twitter_engine import TwitterEngine
@@ -58,9 +58,11 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
         #self.keypress_timeout = 10
         self.name = "LIST NEWS | TOTAL: {0}".format(len(get_list_articles()))
         self.screen_size = self.curses_pad.getmaxyx()  #(height,width)
+        self.articles_list = [i.title for i in get_list_articles()]
+
         self.rss_list = self.add(npyscreen.MultiLine,
                                  name='RSS FEEDS AVIALABLE',
-                                 values=[i.title for i in get_list_articles()],
+                                 values=self.articles_list,
                                  max_height=int(self.screen_size[0] * 0.45),
                                  value=0,
                                  color='GOOD')
@@ -106,6 +108,10 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
         self.rss_list.when_check_cursor_moved = curses.beep
         self.rss_list.when_check_value_changed = self.new_value
 
+    def pre_edit_loop(self):
+        npyscreen.notify_wait('PRE EDIT LOOP LIST NEWS!')
+        self.articles_list = [i.title for i in get_list_articles()]
+
     def article_detail(self):
         next_form = self.parentApp.getForm('DETAIL_NEWS')
         next_form.article_title.value = self.article_name.value
@@ -134,7 +140,6 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
 
             self.DISPLAY()
         except:
-
             self.DISPLAY()
 
 
@@ -198,6 +203,12 @@ class DETAIL_NEWS(npyscreen.FormBaseNew):
             te = TwitterEngine()
             npyscreen.notify_wait('TWITTER TIMELINE  : \n\n {0}'.format(
                 te.get_twitter_time_line()))
+
+            # Delete news.
+            npyscreen.notify_wait('ARTICLE TITLE {0}'.format(
+                self.article_title.value))
+            delete_news(self.article_title.value)
+            self.parentApp.switchForm('MAIN')
         else:
             self.parentApp.switchForm('MAIN')
         cls()
