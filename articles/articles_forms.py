@@ -1,6 +1,6 @@
 import curses
 import itertools
-
+import time
 import npyscreen
 
 from db.db_engine import News, RSS_Feed
@@ -109,8 +109,8 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
         self.rss_list.when_check_value_changed = self.new_value
 
     def pre_edit_loop(self):
-        npyscreen.notify_wait('PRE EDIT LOOP LIST NEWS!')
-        self.articles_list = [i.title for i in get_list_articles()]
+        self.rss_list.values = [i.title for i in get_list_articles()]
+        self.DISPLAY()
 
     def article_detail(self):
         next_form = self.parentApp.getForm('DETAIL_NEWS')
@@ -133,6 +133,7 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
 
             self.article_publisher.value = RSS_Feed.select().where(
                 RSS_Feed.id == art[0].feed)[0].name
+
             self.article_publisher.hidden = False
 
             self.article_detail_btn.hidden = False
@@ -200,9 +201,9 @@ class DETAIL_NEWS(npyscreen.FormBaseNew):
                 self.article_title.value, tags, self.article_url.value))
 
         if (to_publish):
-            te = TwitterEngine()
-            npyscreen.notify_wait('TWITTER TIMELINE  : \n\n {0}'.format(
-                te.get_twitter_time_line()))
+            #  te = TwitterEngine()
+            #  npyscreen.notify_wait('TWITTER TIMELINE  : \n\n {0}'.format(
+            #  te.get_twitter_time_line()))
 
             # Delete news.
             npyscreen.notify_wait('ARTICLE TITLE {0}'.format(
@@ -227,6 +228,7 @@ class DETAIL_NEWS(npyscreen.FormBaseNew):
         self.article_tags.values = [
             tag[1] for tag in get_news_stats(art[0].link_url)['tags']
         ]
+        self.article_tags.value = 0
 
         self.article_publish_btn.hidden = False
         self.article_go_back_btn.hidden = False
