@@ -1,14 +1,14 @@
 import curses
 import itertools
 import time
-
 import npyscreen
 
 from db.db_engine import News, RSS_Feed
-from db.db_toolkit import (add_news, delete_news, filter_news_title,
-                           get_all_rss_feeds, get_list_articles)
-from twitter.twitter_engine import TwitterEngine
+from db.db_toolkit import (add_news, filter_news_title, get_all_rss_feeds,
+                           get_list_articles, delete_news)
 from utils.utilities import get_news_from_rss, get_news_stats
+
+from twitter.twitter_engine import TwitterEngine
 
 
 def cls():
@@ -236,31 +236,27 @@ class DETAIL_NEWS(npyscreen.FormBaseNew):
 
 class SEARCH_NEWS(npyscreen.FormBaseNew):
     def create(self):
-        self.name = 'SEARCH NEWS'
         self.screen_size = self.curses_pad.getmaxyx()  #(height,width)
         self.article_title = self.add(
             npyscreen.TitleText,
             name='SEARCH',
         )
-        #  self.found_items = self.add(npyscreen.TitleMultiSelect,
-        #  name='FOUND ITEMS',
-        #  values=[],
-        #  max_height=int(self.screen_size[0] * 0.6),
-        #  value=0,
-        #  color='GOOD')
+        self.found_items = self.add(npyscreen.TitleMultiSelect,
+                                    name='FOUND ITEMS',
+                                    values=[],
+                                    max_height=int(self.screen_size[0] * 0.7),
+                                    value=0,
+                                    color='GOOD')
 
-        #
-        #  self.article_title.when_value_edited = self.search_value_changed
-
-        #
-        #  self.article_publish_btn = self.add(
-        #  npyscreen.ButtonPress,
-        #  name='PUBLISH',
-        #  when_pressed_function=self.publish_article,
-        #  hidden=True,
-        #  relx=int(self.screen_size[1] * 0.1),
-        #  rely=int(self.screen_size[0] * 0.9))
-
+        #  self.article_title.when_value_edited = curses.beep
+        self.article_title.when_value_edited = self.search_value_changed
+        self.article_publish_btn = self.add(
+            npyscreen.ButtonPress,
+            name='PUBLISH',
+            #  when_pressed_function=self.publish_article,
+            #  hidden=True,
+            relx=int(self.screen_size[1] * 0.1),
+            rely=int(self.screen_size[0] * 0.9))
         self.article_go_back_btn = self.add(
             npyscreen.ButtonPress,
             name='GO BACK',
@@ -272,10 +268,12 @@ class SEARCH_NEWS(npyscreen.FormBaseNew):
     def go_back(self):
         self.parentApp.switchForm('MAIN')
 
+    def search_value_changed(self):
+        cls()
+        #  self.articles_list = [i.title for i in get_list_articles()]
+        articles = filter_news_title(self.article_title.value)
+        self.found_items.values = [i.title for i in articles]
 
-#  def search_value_changed(self):
-#  cls()
-#  articles = filter_news_title(self.article_title.value)
-#  self.found_items.values = [i.title for i in articles]
-#
-#  self.DISPLAY()
+        #  self.found_items.values.append(self.article_title.value)
+
+        self.DISPLAY()
