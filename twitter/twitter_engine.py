@@ -21,9 +21,5 @@ class TwitterEngine:
         time_line = self.api.home_timeline()
         return ([i._json for i in time_line])
 
-
-#  def update_status(self, text, tags, url):
-#  print('self')
-#  print('TEXT', text)
-#  print('TAGS', tags)
-#  print('URL', url)
+    def update_status(self, text):
+        self.api.update_status(text)

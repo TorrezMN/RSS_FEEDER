@@ -26,11 +26,9 @@ class UPDATE_NEWS(npyscreen.FormBaseNew):
                                  value=0,
                                  color='GOOD')
 
-        #self.rss_list.when_check_cursor_moved = curses.beep
         self.rss_list.when_value_changed = curses.beep
 
     def while_waiting(self):
-        #npyscreen.notify_ok_cancel('AWAIT! {0}'.format(get_news_from_rss(get_all_rss_feeds()[0])))
         try:
             cls()
             npyscreen.notify_wait('RSS URL :  {0}'.format(
@@ -50,10 +48,7 @@ class UPDATE_NEWS(npyscreen.FormBaseNew):
             self.DISPLAY()
 
 
-class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
-
-    MOVE_LINE_ON_RESIZE = True
-
+class LIST_NEWS(npyscreen.FormBaseNew):
     def create(self):
         #self.keypress_timeout = 10
         self.name = "LIST NEWS | TOTAL: {0}".format(len(get_list_articles()))
@@ -63,14 +58,11 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
         self.rss_list = self.add(npyscreen.MultiLine,
                                  name='RSS FEEDS AVIALABLE',
                                  values=self.articles_list,
-                                 max_height=int(self.screen_size[0] * 0.45),
+                                 max_height=int(self.screen_size[0] * 0.6),
                                  value=0,
                                  color='GOOD')
 
         self.nextrely += 1
-        self.draw_vertline_at = self.get_half_way() + 10
-        self.nextrely += 1
-
         self.article_name = self.add(npyscreen.TitleText,
                                      name="NAME:",
                                      value="Name to identify the rss-feed.",
@@ -87,9 +79,7 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
             value="Name to identify the rss-feed.",
             editable=False,
             hidden=True)
-
         self.nextrely += 1
-
         self.article_detail_btn = self.add(
             npyscreen.ButtonPress,
             name='DETAILS',
@@ -97,14 +87,12 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
             hidden=True,
             relx=int(self.screen_size[1] * 0.1),
             rely=int(self.screen_size[0] * 0.9))
-
         self.go_back_btn = self.add(npyscreen.ButtonPress,
                                     name='GO BACK',
                                     when_pressed_function=self.go_back,
                                     hidden=True,
                                     relx=int(self.screen_size[1] * 0.3),
                                     rely=int(self.screen_size[0] * 0.9))
-
         self.rss_list.when_check_cursor_moved = curses.beep
         self.rss_list.when_check_value_changed = self.new_value
 
@@ -147,6 +135,11 @@ class LIST_NEWS(npyscreen.FormBaseNew, npyscreen.SplitForm):
 class DETAIL_NEWS(npyscreen.FormBaseNew):
     def create(self):
         self.screen_size = self.curses_pad.getmaxyx()  #(height,width)
+        self.te = TwitterEngine()
+        self.text_for_publication = self.add(npyscreen.TitleText,
+                                             name='My Text',
+                                             editable=True)
+
         self.article_title = self.add(npyscreen.TitleText,
                                       name='Article',
                                       editable=False)
@@ -201,13 +194,18 @@ class DETAIL_NEWS(npyscreen.FormBaseNew):
                 self.article_title.value, tags, self.article_url.value))
 
         if (to_publish):
-            #  te = TwitterEngine()
-            #  npyscreen.notify_wait('TWITTER TIMELINE  : \n\n {0}'.format(
-            #  te.get_twitter_time_line()))
+            text_to_publish = '{0} \n  {1} \n {2}'.format(
+                self.text_for_publication.value,
+                ', '.join(['#' + i for i in tags]), self.article_url.value)
+            npyscreen.notify_ok_cancel(
+                'MENSAJE A PUBLICAR \n {0}'.format(text_to_publish))
 
-            # Delete news.
-            npyscreen.notify_wait('ARTICLE TITLE {0}'.format(
-                self.article_title.value))
+            self.te.update_status(text_to_publish)
+
+            #  self.te.update_status(self.article_title.value,
+            #  ''.join('#' + i + ', ' for i in tags),
+            #  self.article_url.value)  #text, tags, url
+            #  DELETE NEWS
             delete_news(self.article_title.value)
             self.parentApp.switchForm('MAIN')
         else:
@@ -228,54 +226,14 @@ class DETAIL_NEWS(npyscreen.FormBaseNew):
         self.article_tags.values = [
             tag[1] for tag in get_news_stats(art[0].link_url)['tags']
         ]
+
+        if (len(self.article_tags.values) > 1):
+            npyscreen.notify_wait('TIENE MAS DE UN TAG DISPONIBLE')
+        else:
+            delete_news(self.article_title.value)
+            self.parentApp.switchForm('MAIN')
+
         self.article_tags.value = 0
 
         self.article_publish_btn.hidden = False
         self.article_go_back_btn.hidden = False
-
-
-class SEARCH_NEWS(npyscreen.FormBaseNew):
-    def create(self):
-        self.name = 'SEARCH NEWS'
-        self.screen_size = self.curses_pad.getmaxyx()  #(height,width)
-        self.article_title = self.add(
-            npyscreen.TitleText,
-            name='SEARCH',
-        )
-        #  self.found_items = self.add(npyscreen.TitleMultiSelect,
-        #  name='FOUND ITEMS',
-        #  values=[],
-        #  max_height=int(self.screen_size[0] * 0.6),
-        #  value=0,
-        #  color='GOOD')
-
-        #
-        #  self.article_title.when_value_edited = self.search_value_changed
-
-        #
-        #  self.article_publish_btn = self.add(
-        #  npyscreen.ButtonPress,
-        #  name='PUBLISH',
-        #  when_pressed_function=self.publish_article,
-        #  hidden=True,
-        #  relx=int(self.screen_size[1] * 0.1),
-        #  rely=int(self.screen_size[0] * 0.9))
-
-        self.article_go_back_btn = self.add(
-            npyscreen.ButtonPress,
-            name='GO BACK',
-            when_pressed_function=self.go_back,
-            #  hidden=True,
-            relx=int(self.screen_size[1] * 0.3),
-            rely=int(self.screen_size[0] * 0.9))
-
-    def go_back(self):
-        self.parentApp.switchForm('MAIN')
-
-
-#  def search_value_changed(self):
-#  cls()
-#  articles = filter_news_title(self.article_title.value)
-#  self.found_items.values = [i.title for i in articles]
-#
-#  self.DISPLAY()
