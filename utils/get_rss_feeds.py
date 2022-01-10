@@ -9,7 +9,7 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup as BS
 
-BASE_URL = "https://www.techrepublic.com/rssfeeds/"
+BASE_URL = "https://blog.feedspot.com/technology_rss_feeds/"
 
 if __name__ == '__main__':
 
@@ -22,7 +22,7 @@ if __name__ == '__main__':
         }).text
     soup = BS(req, 'lxml')
 
-    mydiv = soup.find_all("section", {"class": "rss-listing"})
+    mydiv = soup.find_all("div", {"class": "fsb"})
 
     #  new_rss = {
     #  'url': self.rss_url.value,
@@ -31,3 +31,9 @@ if __name__ == '__main__':
     #  'created_date': datetime.today(),
     #  'status': True
     #  }
+
+    rss_titles = mydiv[0].find_all('h3')
+
+    rss_data = mydiv[0].find_all('p', {'class': 'trow-wrap'})
+
+    print('wrap 1', rss_data[0])

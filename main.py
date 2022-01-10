@@ -98,6 +98,7 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
 class RSS_FEEDER(npyscreen.NPSAppManaged):
     def onStart(self):
         initialize_db()
+        #  npyscreen.setTheme(npyscreen.Themes.ColorfulTheme)
 
         self.registerForm('MAIN', MainForm(name='RSS FEEDER'))
         # RSS FEED

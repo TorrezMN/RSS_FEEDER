@@ -50,10 +50,19 @@ class UPDATE_NEWS(npyscreen.FormBaseNew):
 
 class LIST_NEWS(npyscreen.FormBaseNew):
     def create(self):
+
         #self.keypress_timeout = 10
         self.name = "LIST NEWS | TOTAL: {0}".format(len(get_list_articles()))
         self.screen_size = self.curses_pad.getmaxyx()  #(height,width)
         self.articles_list = [i.title for i in get_list_articles()]
+        self.search_bar = self.add(npyscreen.TitleText,
+                                   name='SEARCH',
+                                   color='GOOD',
+                                   editable=True)
+
+        self.search_bar.when_value_edited = self.search_bar_changed
+
+        self.nextrely += 1
 
         self.rss_list = self.add(npyscreen.MultiLine,
                                  name='RSS FEEDS AVIALABLE',
@@ -79,7 +88,9 @@ class LIST_NEWS(npyscreen.FormBaseNew):
             value="Name to identify the rss-feed.",
             editable=False,
             hidden=True)
+
         self.nextrely += 1
+
         self.article_detail_btn = self.add(
             npyscreen.ButtonPress,
             name='DETAILS',
@@ -87,6 +98,7 @@ class LIST_NEWS(npyscreen.FormBaseNew):
             hidden=True,
             relx=int(self.screen_size[1] * 0.1),
             rely=int(self.screen_size[0] * 0.9))
+
         self.go_back_btn = self.add(npyscreen.ButtonPress,
                                     name='GO BACK',
                                     when_pressed_function=self.go_back,
@@ -130,6 +142,13 @@ class LIST_NEWS(npyscreen.FormBaseNew):
             self.DISPLAY()
         except:
             self.DISPLAY()
+
+    def search_bar_changed(self):
+        """ Runs every time a word its written in search bar."""
+        word_to_search = self.search_bar.value
+        articles_list = [i.title for i in filter_news_title(word_to_search)]
+        self.rss_list.values = articles_list
+        self.DISPLAY()
 
 
 class DETAIL_NEWS(npyscreen.FormBaseNew):
