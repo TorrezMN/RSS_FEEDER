@@ -22,7 +22,7 @@ class LIST_RSS(npyscreen.FormBaseNew):
         self.rss_list = self.add(npyscreen.MultiLine,
                                  name='RSS FEEDS AVIALABLE',
                                  values=[i.name for i in self.feeds],
-                                 max_height=int(self.screen_size[0] * 0.3),
+                                 max_height=int(self.screen_size[0] * 0.7),
                                  value=0)
         self.rss_list.when_check_cursor_moved = curses.beep
         self.rss_detail_btn = self.add(

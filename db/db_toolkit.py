@@ -15,12 +15,13 @@ from db.db_engine import (RSS_Feed, News)
 
 
 def check_rss_active_status(url):
-    try:
-        req = requests.get(url)
-        if (req.status_code == 200):
-            return (True)
-    except requests.exceptions.ConnectionError:
-        return (False)
+    if (len(url) > 0):
+        try:
+            req = requests.get(url)
+            if (req.status_code == 200):
+                return (True)
+        except requests.exceptions.ConnectionError:
+            return (False)
 
 
 def get_all_rss_feeds():

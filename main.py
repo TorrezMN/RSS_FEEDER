@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+import curses
 import npyscreen
 import urwid
 
@@ -8,12 +9,17 @@ import urwid
 #  RSS
 from rss.rss_forms import ADD_RSS
 from rss.rss_forms import LIST_RSS
+from db.db_toolkit import add_new_rss_feed
 #  ARTICLES
 from articles.articles_forms import UPDATE_NEWS
 from articles.articles_forms import LIST_NEWS
 from articles.articles_forms import DETAIL_NEWS
 #  TWITTER
 from twitter.twitter_forms import MY_TWITTER_FEED
+
+#  UTILS
+from utils.get_rss_feeds import add_rss_feeds
+from db.db_toolkit import add_new_rss_feed
 
 # DB
 from db.db_engine import db
@@ -67,6 +73,10 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
                                      shortcut='f')
         # CONFIG
         self.config_submenu = self.menu.addNewSubmenu('CONFIG', shortcut='c')
+        self.config_submenu.addItem('Load RSS Feeds',
+                                    self.load_rss_feeds,
+                                    shortcut='l')
+
         # MAIN MENU ITEMS
         self.menu.addItem('EXIT APP', self.exitAplication, shortcut='e')
 
@@ -92,6 +102,13 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
 
     def twitter_feed(self):
         self.parentApp.switchForm('TWITTER_FEED')
+        cls()
+
+    def load_rss_feeds(self):
+        for i in add_rss_feeds():
+            add_new_rss_feed(i)
+            curses.beep
+
         cls()
 
 

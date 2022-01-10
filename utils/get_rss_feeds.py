@@ -11,7 +11,8 @@ from bs4 import BeautifulSoup as BS
 
 BASE_URL = "https://blog.feedspot.com/technology_rss_feeds/"
 
-if __name__ == '__main__':
+
+def add_rss_feeds():
 
     feeds = []
     req = requests.get(
@@ -23,17 +24,32 @@ if __name__ == '__main__':
     soup = BS(req, 'lxml')
 
     mydiv = soup.find_all("div", {"class": "fsb"})
-
-    #  new_rss = {
-    #  'url': self.rss_url.value,
-    #  'name': self.rss_name.value,
-    #  'desc': self.rss_description.value,
-    #  'created_date': datetime.today(),
-    #  'status': True
-    #  }
-
     rss_titles = mydiv[0].find_all('h3')
-
     rss_data = mydiv[0].find_all('p', {'class': 'trow-wrap'})
 
-    print('wrap 1', rss_data[0])
+    #  FIND TITLES
+    for i in rss_titles:
+        for j in i.find_all('a'):
+            feeds.append({'name': j.text})
+
+    #  PRINT HIPPERLINK
+    for j, k in enumerate(rss_data):
+        hrefs = k.find_all('a')
+        feeds[j]['url'] = hrefs[0]['href']
+
+    #  GETTING THE DESCRIPTION TEXT
+    for j, k in enumerate(rss_data):
+        feeds[j]['desc'] = k.text
+
+    #  ADDING DATE AND STATUS
+
+    for i in feeds:
+        i['created_date'] = datetime.today()
+        i['status'] = True
+
+    return (feeds)
+
+
+if __name__ == '__main__':
+    for i in add_rss_feeds():
+        print('---->', i['url'])
