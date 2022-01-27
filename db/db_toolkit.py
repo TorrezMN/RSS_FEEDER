@@ -1,17 +1,15 @@
+import time
+from datetime import datetime
+from random import choice
+
+import feedparser
+import npyscreen
+import requests
+from faker import Faker as F
 from peewee import *
 
-import time
-import requests
-import npyscreen
-import feedparser
-from random import choice
-from faker import Faker as F
-from datetime import datetime
-
 #  Importing models.
-from db.db_engine import db
-from db.db_engine import initialize_db
-from db.db_engine import (RSS_Feed, News)
+from db.db_engine import News, RSS_Feed, db, initialize_db
 
 
 def check_rss_active_status(url):
@@ -59,11 +57,17 @@ def add_news(news):
                     link_url=news['url'],
                     article_tags=news['tags']).save()
     except IntegrityError:
-        print('NEWS WAS ALREADY SAVED')
+        """ If news its already saved do nothing."""
+        pass
 
 
 def filter_rss_title(title):
     rss = RSS_Feed.select().where(RSS_Feed.name.contains(str(title)))
+    return (rss)
+
+
+def filter_rss_by_url(url):
+    rss = RSS_Feed.select().where(RSS_Feed.url.contains(str(url)))
     return (rss)
 
 

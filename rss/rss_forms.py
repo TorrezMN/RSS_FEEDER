@@ -81,7 +81,6 @@ class ADD_RSS(npyscreen.Popup, npyscreen.ActionForm):
             'created_date': self.rss_date_added.value,
             'status': True
         }
-        npyscreen.notify_wait('{0}'.format(add_new_rss_feed(f)))
 
     def on_cancel(self):
         npyscreen.notify_wait('CANSEL SAVE!', title='SAVING NEW RSS FEED')

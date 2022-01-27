@@ -18,7 +18,7 @@ from articles.articles_forms import DETAIL_NEWS
 from twitter.twitter_forms import MY_TWITTER_FEED
 
 #  UTILS
-from utils.get_rss_feeds import add_rss_feeds
+from utils.load_devTo_feeds import add_dev_to_rss_feeds
 from db.db_toolkit import add_new_rss_feed
 
 # DB
@@ -66,6 +66,7 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
         self.articles_submenu.addItem('UPDATE ARTICLES',
                                       self.update_articles,
                                       shortcut='r')
+
         # TWITTER
         self.twitter_submenu = self.menu.addNewSubmenu('TWITTER', shortcut='t')
         self.twitter_submenu.addItem('TWITTER FEED',
@@ -73,8 +74,8 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
                                      shortcut='f')
         # CONFIG
         self.config_submenu = self.menu.addNewSubmenu('CONFIG', shortcut='c')
-        self.config_submenu.addItem('Load RSS Feeds',
-                                    self.load_rss_feeds,
+        self.config_submenu.addItem('Load DEV.TO RSS Feeds',
+                                    self.load_dev_to_rss_feeds,
                                     shortcut='l')
 
         # MAIN MENU ITEMS
@@ -104,8 +105,8 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
         self.parentApp.switchForm('TWITTER_FEED')
         cls()
 
-    def load_rss_feeds(self):
-        for i in add_rss_feeds():
+    def load_dev_to_rss_feeds(self):
+        for i in add_dev_to_rss_feeds():
             add_new_rss_feed(i)
             curses.beep
 
@@ -126,6 +127,7 @@ class RSS_FEEDER(npyscreen.NPSAppManaged):
         self.registerForm('UPDATE_NEWS', UPDATE_NEWS(name='UPDATE NEWS'))
         self.registerForm('LIST_NEWS', LIST_NEWS())
         self.registerForm('DETAIL_NEWS', DETAIL_NEWS(name='DETAIL NEWS'))
+
         #  TWITTER
         self.registerForm('TWITTER_FEED', MY_TWITTER_FEED())
 

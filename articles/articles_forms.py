@@ -6,7 +6,9 @@ import npyscreen
 
 from db.db_engine import News, RSS_Feed
 from db.db_toolkit import (add_news, delete_news, filter_news_title,
-                           get_all_rss_feeds, get_list_articles)
+                           get_all_rss_feeds, get_list_articles,
+                           filter_rss_by_url)
+
 from twitter.twitter_engine import TwitterEngine
 from utils.utilities import get_news_from_rss, get_news_stats
 
@@ -15,33 +17,63 @@ def cls():
     npyscreen.blank_terminal()
 
 
+class InputBox(npyscreen.BoxTitle):
+    # MultiLineEdit now will be surrounded by boxing
+    _contained_widget = npyscreen.MultiLineEdit
+
+
 class UPDATE_NEWS(npyscreen.FormBaseNew):
     def create(self):
-        self.keypress_timeout = 10
         self.screen_size = self.curses_pad.getmaxyx()  #(height,width)
+        self.keypress_timeout = 10
         self.rss_list = self.add(npyscreen.MultiLine,
                                  name='RSS FEEDS AVIALABLE',
                                  values=[i.url for i in get_all_rss_feeds()],
-                                 max_height=int(self.screen_size[0] * 0.3),
+                                 max_height=int(self.screen_size[0] * 0.4),
                                  value=0,
                                  color='GOOD')
+        self.nextrely += 2
+        self.slider = self.add(npyscreen.Slider,
+                               out_of=len(self.rss_list.values) + 1,
+                               step=1,
+                               color='GOOD',
+                               label=True,
+                               lowest=0)
 
+        self.nextrely += 2
         self.rss_list.when_value_changed = curses.beep
+        self.nextrely += 3
+        #  BOX WHEN UPDATE
+        self.rss_updating_now = self.add(npyscreen.BoxTitle,
+                                         name="Updating Now",
+                                         custom_highlighting=True,
+                                         values=["", "", ""],
+                                         max_height=int(self.screen_size[0] *
+                                                        0.2))
 
     def while_waiting(self):
         try:
-            cls()
-            npyscreen.notify_wait('RSS URL :  {0}'.format(
-                self.rss_list.values[self.rss_list.value]),
-                                  title='UPDATING')
+            #  cls()
+            curr_title = self.rss_list.values[self.rss_list.value]
+            feed = filter_rss_by_url(curr_title)
+
+            self.rss_updating_now.values[1] = 'NAME: {0}'.format(feed[0].name)
+            self.rss_updating_now.values[2] = 'DESC: {0}'.format(
+                feed[0].description)
+
+            #  npyscreen.notify_ok_cancel('feed_description {0}'.format(
+            #  feed[0].description))
+
+            #  UPDATE SLIDER
+            self.slider.value += 1
 
             for i in get_news_from_rss(RSS_Feed.select().where(
                     RSS_Feed.url == self.rss_list.values[
                         self.rss_list.value])):
                 add_news(i)
 
-            self.rss_list.value += 1
-            self.DISPLAY()
+                self.rss_list.value += 1
+                self.DISPLAY()
         except IndexError:
             npyscreen.notify_wait('FINISH UPDATING RSS NEWS', title='UPDATING')
             self.parentApp.switchForm('MAIN')
@@ -61,7 +93,6 @@ class LIST_NEWS(npyscreen.FormBaseNew):
                                    editable=True)
 
         self.search_bar.when_value_edited = self.search_bar_changed
-
         self.nextrely += 1
 
         self.rss_list = self.add(npyscreen.MultiLine,
@@ -110,6 +141,7 @@ class LIST_NEWS(npyscreen.FormBaseNew):
 
     def pre_edit_loop(self):
         self.rss_list.values = [i.title for i in get_list_articles()]
+        self.search_bar.clear()
         self.DISPLAY()
 
     def article_detail(self):
