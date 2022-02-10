@@ -9,6 +9,7 @@ import urwid
 #  RSS
 from rss.rss_forms import ADD_RSS
 from rss.rss_forms import LIST_RSS
+from rss.rss_forms import LIST_RSS_BY_TOPIC
 from db.db_toolkit import add_new_rss_feed
 #  ARTICLES
 from articles.articles_forms import UPDATE_NEWS
@@ -31,6 +32,7 @@ def cls():
 
 
 class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
+
     def create(self):
         self.screen_size = self.curses_pad.getmaxyx()  #(height,width)
         self.half_way = self.get_half_way()
@@ -57,6 +59,9 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
         self.rss_submenu = self.menu.addNewSubmenu('RSS', shortcut='r')
         self.rss_submenu.addItem('ADD RSS FEED', self.add_rss, shortcut='a')
         self.rss_submenu.addItem('LIST RSS FEED', self.list_rss, shortcut='s')
+        self.rss_submenu.addItem('LIST RSS by TOPIC',
+                                 self.list_rss_by_topic,
+                                 shortcut='t')
         # ARTICLES
         self.articles_submenu = self.menu.addNewSubmenu('ARTICLES',
                                                         shortcut='a')
@@ -93,6 +98,10 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
         self.parentApp.switchForm('LIST_RSS_FEED')
         cls()
 
+    def list_rss_by_topic(self):
+        self.parentApp.switchForm('LIST_RSS_BY_TOPIC')
+        cls()
+
     def list_articles(self):
         self.parentApp.switchForm('LIST_NEWS')
         cls()
@@ -114,6 +123,7 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
 
 
 class RSS_FEEDER(npyscreen.NPSAppManaged):
+
     def onStart(self):
         initialize_db()
         #  npyscreen.setTheme(npyscreen.Themes.ColorfulTheme)
@@ -122,6 +132,8 @@ class RSS_FEEDER(npyscreen.NPSAppManaged):
         # RSS FEED
         self.registerForm('ADD_RSS_FEED', ADD_RSS(name='ADD RSS FEED'))
         self.registerForm('LIST_RSS_FEED', LIST_RSS(name='LIST RSS FEED'))
+        self.registerForm('LIST_RSS_BY_TOPIC',
+                          LIST_RSS_BY_TOPIC(name='LIST RSS by TOPIC'))
 
         # ARTICLES
         self.registerForm('UPDATE_NEWS', UPDATE_NEWS(name='UPDATE NEWS'))

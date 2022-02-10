@@ -79,3 +79,9 @@ def filter_news_title(title):
 def delete_news(news_title):
     news = News.get(News.title == news_title)
     news.delete_instance()
+
+
+def filter_news_by_rss_feed(feed):
+    rss_id = RSS_Feed.select().where(RSS_Feed.name.contains(str(feed)))[0].id
+    all_news_in_rss = News.select().where(News.feed == rss_id)
+    return (all_news_in_rss)

@@ -248,7 +248,7 @@ class DETAIL_NEWS(npyscreen.FormBaseNew):
             text_to_publish = '{0} \n  {1} \n {2}'.format(
                 self.text_for_publication.value,
                 ', '.join(['#' + i for i in tags]), self.article_url.value)
-            npyscreen.notify_ok_cancel(
+            npyscreen.notify_wait(
                 'MENSAJE A PUBLICAR \n {0}'.format(text_to_publish))
 
             self.te.update_status(text_to_publish)

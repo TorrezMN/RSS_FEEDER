@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 import curses
-import npyscreen
 import random
 from datetime import datetime
+
+import npyscreen
 from faker import Faker as F
 
-from db.db_toolkit import add_new_rss_feed
-from db.db_toolkit import (get_all_rss_feeds, filter_rss_title)
+from db.db_toolkit import (add_new_rss_feed, filter_news_by_rss_feed,
+                           filter_rss_title, get_all_rss_feeds)
 
 
 class LIST_RSS(npyscreen.FormBaseNew):
@@ -54,6 +55,7 @@ class LIST_RSS(npyscreen.FormBaseNew):
 
 
 class ADD_RSS(npyscreen.Popup, npyscreen.ActionForm):
+
     def create(self):
         self.name = 'NEW RSS FEED'
         self.rss_url = self.add(npyscreen.TitleText,
@@ -85,3 +87,47 @@ class ADD_RSS(npyscreen.Popup, npyscreen.ActionForm):
     def on_cancel(self):
         npyscreen.notify_wait('CANSEL SAVE!', title='SAVING NEW RSS FEED')
         self.parentApp.switchForm('MAIN')
+
+
+class InputBox(npyscreen.BoxTitle):
+    # MultiLineEdit now will be surrounded by boxing
+    _contained_widget = npyscreen.MultiLine
+
+
+class LIST_RSS_BY_TOPIC(npyscreen.ActionForm):
+
+    def create(self):
+        self.name = 'LIST RSS FEED by TOPIC'
+        y, x = self.useable_space()
+        self.rss_topics = self.add(
+            npyscreen.BoxTitle,
+            name="RSS Topics",
+            custom_highlighting=True,
+            value=0,
+            values=[
+                i.name if x > 80 else i.name.replace(' RSS Feed for ', '->')
+                for i in get_all_rss_feeds()
+            ],
+            max_width=int(x * 0.3),
+            max_height=int(y * 0.8))
+
+        self.rss_topics.when_value_edited = self.topic_changed
+        self.news_by_feed = self.add(InputBox,
+                                     name="RELATED ARTICLES",
+                                     footer="footer",
+                                     max_width=int(x * 0.6),
+                                     max_height=int(y * 0.8),
+                                     relx=int(x * 0.33),
+                                     rely=2)
+
+        #  npyscreen.notify_ok_cancel('rss_topics {0}'.format(
+        #  dir(self.news_by_feed)))
+
+    def topic_changed(self):
+        rss = self.rss_topics.values[self.rss_topics.value].split('#')[1]
+        self.news_by_feed.entry_widget.values = [
+            '> ' + i.title for i in filter_news_by_rss_feed(rss)
+        ]
+        self.news_by_feed.footer = 'Showing all news related to [{0}] feed.'.format(
+            rss.upper())
+        self.DISPLAY()
