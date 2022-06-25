@@ -20,6 +20,7 @@ def cls():
 
 
 class MY_TWITTER_FEED(npyscreen.FormBaseNew):
+
     def create(self):
         self.screen_size = self.curses_pad.getmaxyx()  #(height,width)
         self.te = TwitterEngine()
@@ -40,6 +41,32 @@ class MY_TWITTER_FEED(npyscreen.FormBaseNew):
                              max_height=int(self.screen_size[0] * 0.6),
                              value=0,
                              color='GOOD')
+        self.rss_go_back_btn = self.add(
+            npyscreen.ButtonPress,
+            when_pressed_function=self.go_back_pressed,
+            name='GO BACK',
+            relx=int(self.screen_size[1] * 0.8),
+            rely=int(self.screen_size[0] * 0.9),
+        )
+
+    def go_back_pressed(self):
+        self.parentApp.switchForm('MAIN')
+
+
+class UPDATE_TWITTER_STATUS(npyscreen.FormBaseNew):
+
+    def create(self):
+        self.screen_size = self.curses_pad.getmaxyx()  #(height,width)
+        self.te = TwitterEngine()
+
+        self.add(npyscreen.FixedText,
+                 value='UPDATE TWITTER FEED',
+                 relx=int(self.screen_size[1] * 0.5 - 6),
+                 rely=int(self.screen_size[0] * 0.05),
+                 width=50,
+                 height=15,
+                 color='GOOD')
+
         self.rss_go_back_btn = self.add(
             npyscreen.ButtonPress,
             when_pressed_function=self.go_back_pressed,

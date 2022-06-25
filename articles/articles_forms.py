@@ -23,6 +23,7 @@ class InputBox(npyscreen.BoxTitle):
 
 
 class UPDATE_NEWS(npyscreen.FormBaseNew):
+
     def create(self):
         self.screen_size = self.curses_pad.getmaxyx()  #(height,width)
         self.keypress_timeout = 10
@@ -81,6 +82,7 @@ class UPDATE_NEWS(npyscreen.FormBaseNew):
 
 
 class LIST_NEWS(npyscreen.FormBaseNew):
+
     def create(self):
 
         #self.keypress_timeout = 10
@@ -142,6 +144,7 @@ class LIST_NEWS(npyscreen.FormBaseNew):
     def pre_edit_loop(self):
         self.rss_list.values = [i.title for i in get_list_articles()]
         self.search_bar.clear()
+        self.search_bar.display()
         self.DISPLAY()
 
     def article_detail(self):
@@ -184,6 +187,7 @@ class LIST_NEWS(npyscreen.FormBaseNew):
 
 
 class DETAIL_NEWS(npyscreen.FormBaseNew):
+
     def create(self):
         self.screen_size = self.curses_pad.getmaxyx()  #(height,width)
         self.te = TwitterEngine()

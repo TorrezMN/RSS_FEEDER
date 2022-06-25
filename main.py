@@ -17,6 +17,8 @@ from articles.articles_forms import LIST_NEWS
 from articles.articles_forms import DETAIL_NEWS
 #  TWITTER
 from twitter.twitter_forms import MY_TWITTER_FEED
+from twitter.twitter_forms import UPDATE_TWITTER_STATUS
+from twitter.twitter_engine import calculate_hours
 
 #  UTILS
 from utils.load_devTo_feeds import add_dev_to_rss_feeds
@@ -77,6 +79,12 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
         self.twitter_submenu.addItem('TWITTER FEED',
                                      self.twitter_feed,
                                      shortcut='f')
+        self.twitter_submenu.addItem('UPDATE TWITTER FEED',
+                                     self.update_twitter_status,
+                                     shortcut='e')
+        self.twitter_submenu.addItem('UPDATE w/ time TWITTER',
+                                     self.update_twitter_w_time,
+                                     shortcut='t')
         # CONFIG
         self.config_submenu = self.menu.addNewSubmenu('CONFIG', shortcut='c')
         self.config_submenu.addItem('Load DEV.TO RSS Feeds',
@@ -114,6 +122,13 @@ class MainForm(npyscreen.FormBaseNewWithMenus, npyscreen.SplitForm):
         self.parentApp.switchForm('TWITTER_FEED')
         cls()
 
+    def update_twitter_w_time(self):
+        npyscreen.notify_ok_cancel('{0}'.format(calculate_hours()))
+
+    def update_twitter_status(self):
+        self.parentApp.switchForm('UPDATE_TWITTER_FEED')
+        cls()
+
     def load_dev_to_rss_feeds(self):
         for i in add_dev_to_rss_feeds():
             add_new_rss_feed(i)
@@ -142,6 +157,7 @@ class RSS_FEEDER(npyscreen.NPSAppManaged):
 
         #  TWITTER
         self.registerForm('TWITTER_FEED', MY_TWITTER_FEED())
+        self.registerForm('UPDATE_TWITTER_FEED', UPDATE_TWITTER_STATUS())
 
 
 if __name__ == "__main__":

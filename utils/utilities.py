@@ -71,6 +71,21 @@ def get_news_from_rss(feed):
 
     return (news)
 
+def get_sumary_from_news(url):
+    #  TAG : crayons-article__main
+    container_name = 'crayons-article__main'
+
+    req = requests.get(url)
+    soup = BeautifulSoup(req.text, 'lxml')
+
+    parrafos = soup.findAll('p')
+
+    texto = ''.join([i.get_text() for i in parrafos])
+
+    print(texto.split('.'))
+
+
 
 if __name__ == '__main__':
-    print(get_news_stats(URL))
+    get_sumary_from_news(URL)
+

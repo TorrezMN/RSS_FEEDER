@@ -1,10 +1,21 @@
 from configparser import ConfigParser
+from datetime import datetime as dt
 from pathlib import Path
 
 import tweepy
 
 
+def calculate_hours():
+    curr_time = dt.now().hour
+    percent = (curr_time * 100) / 24
+    max_scuqres = 15
+    scuares = '#' * int((percent * 15) / 100)
+    hours = '{0} --> {1}%'.format(scuares, int(percent))
+    return (hours)
+
+
 class TwitterEngine:
+
     def __init__(self):
         """Makes a connection to the twitter api for the class."""
         config_file = Path(__file__).parent / "../config/main_config.ini"
